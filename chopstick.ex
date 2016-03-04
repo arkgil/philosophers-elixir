@@ -1,9 +1,10 @@
 defmodule Chopstick do
   use GenServer
 
+
   # API
-  def start_link do
-    GenServer.start_link(__MODULE__, :free)
+  def start_link(index) do
+    GenServer.start_link(__MODULE__, {:free, index})
   end
 
   def get_state(pid) do
@@ -23,15 +24,15 @@ defmodule Chopstick do
     {:reply, state, state}
   end
 
-  def handle_call(:take, _from, :free) do
-    {:reply, :ok, :taken}
+  def handle_call(:take, _from, {:free, index}) do
+    {:reply, :ok, {:taken, index}}
   end
 
-  def handle_call(:take, _from, :taken) do
-    {:reply, {:not_ok, :taken}, :taken}
+  def handle_call(:take, _from, {:taken, index}) do
+    {:reply, {:not_ok, :taken, index}, {:taken, index}}
   end
 
-  def handle_cast(:free, _) do
-    {:noreply, :free}
+  def handle_cast(:free, {_, index}) do
+    {:noreply, {:free, index}}
   end
 end
